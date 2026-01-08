@@ -1,13 +1,23 @@
 # image_to_svg
 
-Rust 图片转 SVG 的 Flutter 插件，基于 flutter_rust_bridge 将像素图（PNG/JPG 等）转换为可缩放的 SVG 矢量图。适合像素风图标、简化矢量化预览等场景。
+A Rust-based Flutter plugin that converts bitmap images (PNG/JPG) into scalable SVG vectors. Built with `flutter_rust_bridge`, it provides high-performance vectorization suitable for pixel art, simplified vector previews, and graphic design tools.
 
-- 核心能力：将位图转换为 SVG 字符路径，支持硬边缘渲染与透明度阈值
-- 跨平台：Android / iOS / macOS / Windows / Linux（使用 FRB 自动打包原生库）
-- 依赖要求：需要安装 Rust 开发环境
+## Features
 
-示例代码与完整用法请参考示例应用与公开 API。
+- **Bitmap to SVG**: Converts raster images into SVG paths.
+- **Configurable**: Supports scale, alpha threshold, and crisp edges options.
+- **Cross-Platform**: Full support for Android, iOS, macOS, Windows, and Linux.
+- **High Performance**: Powered by Rust for efficient image processing.
 
+## Prerequisites
+
+To use this plugin, you must have the Rust toolchain installed on your development machine.
+
+1. **Install Rust**:
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf [https://sh.rustup.rs](https://sh.rustup.rs) | sh
+   rustup default stable
+   
 ## 安装要求
 
 - Rust（必须）：使用 rustup 安装稳定工具链
