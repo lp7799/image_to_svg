@@ -1,92 +1,111 @@
 # image_to_svg
 
-A new Flutter FFI plugin project.
+Rust 图片转 SVG 的 Flutter 插件，基于 flutter_rust_bridge 将像素图（PNG/JPG 等）转换为可缩放的 SVG 矢量图。适合像素风图标、简化矢量化预览等场景。
 
-## Getting Started
+- 核心能力：将位图转换为 SVG 字符路径，支持硬边缘渲染与透明度阈值
+- 跨平台：Android / iOS / macOS / Windows / Linux（使用 FRB 自动打包原生库）
+- 依赖要求：需要安装 Rust 开发环境
 
-This project is a starting point for a Flutter
-[FFI plugin](https://flutter.dev/to/ffi-package),
-a specialized package that includes native code directly invoked with Dart FFI.
+示例代码与完整用法请参考示例应用与公开 API。
 
-## Project structure
+## 安装要求
 
-This template uses the following structure:
+- Rust（必须）：使用 rustup 安装稳定工具链
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
-
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
-
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
-
-## Building and bundling native code
-
-The `pubspec.yaml` specifies FFI plugins as follows:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup default stable
 ```
 
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
+- Flutter SDK
+- 平台依赖
+  - Android：Android SDK + NDK（Gradle 会自动拉取并构建）
+  - iOS/macOS：Xcode（通过 CocoaPods 集成）
+  - Windows/Linux：CMake（由 Flutter 构建系统驱动）
 
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
+## 快速开始
 
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
+1. 初始化 FRB
+
+```dart
+import 'package:image_to_svg/image_to_svg.dart';
+
+Future<void> main() async {
+  await RustLib.init();
+  // ...
+}
 ```
 
-A plugin can have both FFI and method channels:
+2. 调用转换 API（Dart）
 
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
+```dart
+import 'dart:io';
+import 'package:image_to_svg/image_to_svg.dart';
+import 'package:path_provider/path_provider.dart';
+
+Future<String> convertToSvg(File input) async {
+  final bytes = await input.readAsBytes();
+  final dir = await getTemporaryDirectory();
+  final out = '${dir.path}/converted_${DateTime.now().millisecondsSinceEpoch}.svg';
+  final resultPath = await convertPixelsToSvgFile(
+    imageBytes: bytes,
+    outputPath: out,
+    options: FlutterConversionOptions(
+      scale: 1,
+      alphaThreshold: 1,
+      crispEdges: true,
+      autoResize: true,
+    ),
+  );
+  return resultPath; // 返回生成的 SVG 文件路径
+}
 ```
 
-The native build systems that are invoked by FFI (and method channel) plugins are:
+3. 在界面中展示（示例工程已集成 `flutter_svg`）
 
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/image_to_svg.podspec.
-  * See the documentation in macos/image_to_svg.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
+示例应用代码参考：[main.dart](file:///Users/yk/Documents/rust_model/image_to_svg/example/lib/main.dart)
 
-## Binding to native code
+## API 说明（Dart）
 
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/image_to_svg.h`) by `package:ffigen`.
-Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
+- 函数：`convertPixelsToSvgFile({ required List<int> imageBytes, required String outputPath, FlutterConversionOptions? options }) -> Future<String>`
+  - 入参：
+    - `imageBytes`：输入图片的字节（PNG/JPG 等）
+    - `outputPath`：输出 SVG 文件路径
+    - `options`：可选配置
+  - 返回：生成的 SVG 文件路径（String）
 
-## Invoking native code
+- `FlutterConversionOptions`
+  - `scale`：输出 SVG 的缩放倍数（整数）
+  - `alphaThreshold`：透明度阈值（0–255），低于该值视为透明
+  - `crispEdges`：是否启用硬边缘渲染，避免抗锯齿导致颜色泛化
+  - `autoResize`：是否自动缩小过大的图片（内部使用最近邻缩放，最大边默认 256）
 
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/image_to_svg.dart`.
+API 源码参考：
+- Dart 封装：[image_to_svg.dart](file:///Users/yk/Documents/rust_model/image_to_svg/lib/src/rust/api/image_to_svg.dart)
+- Rust 实现：[image_to_svg.rs](file:///Users/yk/Documents/rust_model/image_to_svg/rust/src/api/image_to_svg.rs)
 
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/image_to_svg.dart`.
+## 使用建议
 
-## Flutter help
+- 大尺寸位图（如 4000×3000）在矢量化时会产生巨量路径与颜色块，SVG 体积和渲染复杂度会急剧上升。默认开启 `autoResize`，将图片最大边缩到 256，并使用最近邻缩放以保留像素硬边。
+- 适合场景：像素风图标、简化渲染的矢量预览、低分辨率图形的矢量化。
 
-For help getting started with Flutter, view our
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 示例应用
 
+- 位置：`example/`
+- 主要逻辑：图片选择、参数调整（scale/alphaThreshold）、SVG 预览
+- 入口示例：[main.dart](file:///Users/yk/Documents/rust_model/image_to_svg/example/lib/main.dart)
+
+## 平台构建与集成说明
+
+该插件通过 Flutter 的构建系统与 flutter_rust_bridge 自动编译并打包原生库：
+
+- Android：Gradle + NDK（配置见项目 `android/`）
+- iOS/macOS：CocoaPods（见 [image_to_svg.podspec](file:///Users/yk/Documents/rust_model/image_to_svg/ios/image_to_svg.podspec) 与 [macOS podspec](file:///Users/yk/Documents/rust_model/image_to_svg/macos/image_to_svg.podspec)）
+- Windows/Linux：CMake（见 [linux/CMakeLists.txt](file:///Users/yk/Documents/rust_model/image_to_svg/linux/CMakeLists.txt) 与 [windows/CMakeLists.txt](file:///Users/yk/Documents/rust_model/image_to_svg/windows/CMakeLists.txt)）
+
+默认配置由 FRB 生成代码管理，入口位于：
+- [frb_generated.dart](file:///Users/yk/Documents/rust_model/image_to_svg/lib/src/rust/frb_generated.dart)
+
+## 许可
+
+本项目遵循开源许可证，详见 [LICENSE](file:///Users/yk/Documents/rust_model/image_to_svg/LICENSE)。
