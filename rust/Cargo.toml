@@ -1,0 +1,16 @@
+[package]
+name = "image_to_svg"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+anyhow = "1.0.100"
+flutter_rust_bridge = "=2.11.1"
+image = "0.25.9"
+pix2svg = "0.1.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
