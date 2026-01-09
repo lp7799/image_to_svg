@@ -1,3 +1,4 @@
+
 <!-- formatted by Gemini -->
 # image_to_svg
 
@@ -38,7 +39,7 @@ Add `image_to_svg` to your project's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  image_to_svg: ^0.0.1
+  image_to_svg: ^0.0.2
 ```
 
 Then run `flutter pub get` to install the package.
