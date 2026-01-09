@@ -5,7 +5,7 @@ A high-performance Flutter plugin that converts bitmap images (PNG/JPG) into sca
 
 Powered by `flutter_rust_bridge`, this plugin leverages the speed and memory safety of Rust to perform computationally intensive vectorization tasks efficiently. It is specifically designed for scenarios requiring pixel art vectorization, simplified vector previews, and graphic design tools where preserving sharp edges and handling transparency is critical. By offloading image processing to native Rust code, it ensures your Flutter UI remains smooth and responsive.
 
-<!-- Demo Image: Replace the link below with your actual image URL -->
+![Demo Image](https://github.com/lp7799/image_to_svg/blob/main/image.jpg?raw=true)
 
 ## ✨ Features
 
@@ -20,12 +20,14 @@ To use this plugin, your development environment must be set up to compile the u
 
 **Install the Rust Toolchain:**
 This plugin relies on the standard Rust compiler. Install it via `rustup` to ensure you have the latest stable version.
+
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 ```
 
 **Platform-Specific Requirements:**
+
 -   **Android**: Requires the Android SDK & NDK. These are usually handled automatically by Gradle during the build process.
 -   **iOS/macOS**: Requires Xcode. The native pods will be handled by CocoaPods.
 -   **Windows/Linux**: Requires CMake and a C++ compiler (like Visual Studio or GCC), which are driven by the standard Flutter build system.
@@ -33,10 +35,12 @@ rustup default stable
 ## 📦 Installation
 
 Add `image_to_svg` to your project's `pubspec.yaml` file:
+
 ```yaml
 dependencies:
   image_to_svg: ^0.0.1
 ```
+
 Then run `flutter pub get` to install the package.
 
 ## 🎯 Quick Start
