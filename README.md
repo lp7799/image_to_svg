@@ -7,7 +7,7 @@ A high-performance Flutter plugin that converts bitmap images (PNG/JPG) into sca
 Powered by `flutter_rust_bridge`, this plugin leverages the speed and memory safety of Rust to perform computationally intensive vectorization tasks efficiently. It is specifically designed for scenarios requiring pixel art vectorization, simplified vector previews, and graphic design tools where preserving sharp edges and handling transparency is critical. By offloading image processing to native Rust code, it ensures your Flutter UI remains smooth and responsive.
 
 ![Demo Image](https://github.com/lp7799/image_to_svg/blob/main/image.jpg?raw=true)
-## 0.0.2
+
 ## ✨ Features
 
 -   **Bitmap to SVG Conversion**: Efficiently traces contours and converts raster image data (pixels) into mathematically defined SVG paths.
